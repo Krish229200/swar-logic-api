@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: asr-accuracy-report-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
