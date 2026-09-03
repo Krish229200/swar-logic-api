@@ -1,16 +1,3 @@
-"""
-ASR Accuracy Report API
-========================
-Upload a CSV/XLSX with ground-truth vs ASR transcripts, get back an Excel
-report (Accuracy Summary + detail sheet) with fuzzy word-level matching.
-
-Run locally:
-    pip install -r requirements.txt
-    uvicorn main:app --reload --port 8000
-
-Then open http://127.0.0.1:8000/docs to try it interactively, or POST to
-/report/generate directly (see README.md for a curl example).
-"""
 
 import datetime
 import io
@@ -31,19 +18,12 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Allow calling this from a browser-based frontend during local dev.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-# ---------------------------------------------------------------------------
-# Core logic (unchanged from the original script, just organized into fns)
-# ---------------------------------------------------------------------------
-
 def fuzzy_align(gt_text: str, asr_text: str, threshold: float = 80.0):
     gt_words = gt_text.split()
     asr_remaining = asr_text.split()
@@ -190,11 +170,6 @@ def read_uploaded_table(upload: UploadFile, raw: bytes) -> pd.DataFrame:
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Could not parse uploaded file: {exc}")
 
-
-# ---------------------------------------------------------------------------
-# Routes
-# ---------------------------------------------------------------------------
-
 @app.get("/")
 def health():
     return {"status": "ok", "docs": "/docs"}
@@ -221,10 +196,6 @@ async def generate_report(
     uploaded_by: str = Form("Super_admin"),
     threshold: float = Form(80.0, description="Fuzzy match threshold (0-100)"),
 ):
-    """
-    Upload a transcript CSV/XLSX and get back an Excel accuracy report
-    (Accuracy Summary report + Swar Data Report sheets).
-    """
     raw = await file.read()
     df = read_uploaded_table(file, raw)
 
